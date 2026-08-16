@@ -3,6 +3,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from backend.data_client import NBADataClient
 from engine.gemini_client import GeminiAnalyzer
+from utils.db_manager import init_db, log_prediction, get_history_df
 from dotenv import load_dotenv
 
 # Carga de variables de entorno (.env)

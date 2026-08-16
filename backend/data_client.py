@@ -123,12 +123,16 @@ class NBADataClient:
                 return self._get_fallback_snapshot(team_a, team_b)
             return {"error": f"Fallo Crítico de Ingesta: {str(e)}"}
 
-    def get_live_odds(self, team_a: str, team_b: str) -> dict:
-        # (Se mantiene intacto)
+    def get_live_odds(self, team_a: str, team_b: str, market_type: str = "h2h") -> dict:
+        """
+        Extrae cuotas dinámicas basándose en el mercado seleccionado.
+        market_type: 'h2h' (Moneyline), 'spreads' (Handicap), 'totals' (Over/Under)
+        """
         if not self.odds_api_key:
             return {"error": "ODDS_API_KEY no configurada"}
             
-        url = f"https://api.the-odds-api.com/v4/sports/basketball_nba/odds/?apiKey={self.odds_api_key}&regions=us&markets=h2h&oddsFormat=decimal"
+        # Modificamos la URL para aceptar el mercado dinámico
+        url = f"https://api.the-odds-api.com/v4/sports/basketball_nba/odds/?apiKey={self.odds_api_key}&regions=us&markets={market_type}&oddsFormat=decimal"
         try:
             response = requests.get(url)
             if response.status_code == 200:
@@ -139,9 +143,19 @@ class NBADataClient:
                         bookmaker = game['bookmakers'][0] 
                         outcomes = bookmaker['markets'][0]['outcomes']
                         odds_data = {}
+                        
+                        # Parseo dinámico según el mercado
                         for outcome in outcomes:
-                            if team_a in outcome['name']: odds_data[team_a] = outcome['price']
-                            if team_b in outcome['name']: odds_data[team_b] = outcome['price']
+                            # Para Moneyline y Spreads
+                            if team_a in outcome.get('name', ''): 
+                                odds_data[team_a] = {"price": outcome['price'], "point": outcome.get('point', None)}
+                            if team_b in outcome.get('name', ''): 
+                                odds_data[team_b] = {"price": outcome['price'], "point": outcome.get('point', None)}
+                            # Para Totales (Over/Under)
+                            if outcome.get('name') == 'Over':
+                                odds_data['Over'] = {"price": outcome['price'], "point": outcome['point']}
+                            if outcome.get('name') == 'Under':
+                                odds_data['Under'] = {"price": outcome['price'], "point": outcome['point']}
                         return odds_data
                 return {}
             return {"error": f"HTTP {response.status_code}"}
