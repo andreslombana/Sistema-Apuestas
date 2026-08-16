@@ -17,21 +17,37 @@ class FootballDataClient:
         self.season = 2026
 
     def get_teams(self) -> list:
-        # Fallback inmediato si no hay API Key
+        """
+        Retorna el catálogo de equipos de la Liga Colombiana.
+        Implementa un caché estático como Fallback primario para ahorrar llamadas a la API
+        y garantizar que los 20 equipos estén siempre disponibles para backtesting.
+        """
+        catalogo_fpc = sorted([
+            "Millonarios", "Atlético Nacional", "América de Cali", "Independiente Santa Fe",
+            "Junior", "Deportes Tolima", "Independiente Medellín", "Once Caldas",
+            "Deportivo Cali", "Atlético Bucaramanga", "Deportivo Pereira", "La Equidad",
+            "Águilas Doradas", "Envigado FC", "Boyacá Chicó", "Patriotas",
+            "Alianza FC", "Fortaleza CEIF", "Deportivo Pasto", "Jaguares de Córdoba"
+        ])
+        
+        # Si no hay llave, retornamos el catálogo estático inmediatamente
         if not self.api_key:
-            return sorted(["Millonarios", "Atlético Nacional", "América de Cali", "Independiente Santa Fe", "Junior", "Deportes Tolima"])
+            logging.warning("FOOTBALL_API_KEY no detectada. Usando catálogo estático del FPC.")
+            return catalogo_fpc
             
         try:
             url = f"{self.base_url}/teams?league={self.league_id}&season={self.season}"
             response = requests.get(url, headers=self.headers, timeout=10)
             if response.status_code == 200:
                 data = response.json()
-                return sorted([team['team']['name'] for team in data.get('response', [])])
-            else:
-                raise Exception("API HTTP Error")
+                if data.get('results', 0) > 0:
+                    return sorted([team['team']['name'] for team in data.get('response', [])])
+            
+            # Si la API responde un 200 pero vacío (ej. cambio de temporada), usa el estático
+            return catalogo_fpc
         except Exception as e:
-            logging.error(f"Fallo al extraer equipos FPC: {e}")
-            return ["Millonarios", "Atlético Nacional", "Santa Fe", "América de Cali"]
+            logging.error(f"Fallo de red en API-Football: {e}. Activando Fallback Estático.")
+            return catalogo_fpc
 
     def _get_fallback_snapshot(self, team_a, team_b):
         """Snapshot estático (Circuit Breaker) para la Liga Colombiana."""
