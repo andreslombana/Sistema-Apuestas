@@ -6,13 +6,17 @@ import logging
 
 class FootballDataClient:
     def __init__(self):
-        logging.info("Inicializando Cliente de Fútbol (API-Football - Resilient Mode)...")
+        logging.info("Inicializando Cliente de Fútbol (API-Sports Direct Mode)...")
         self.api_key = os.getenv("FOOTBALL_API_KEY")
+        
+        # NUEVO: Cabeceras directas del proveedor oficial (Sin RapidAPI)
         self.headers = {
-            "x-rapidapi-host": "api-football-v1.p.rapidapi.com",
-            "x-rapidapi-key": self.api_key if self.api_key else ""
+            "x-apisports-key": self.api_key if self.api_key else ""
         }
-        self.base_url = "https://api-football-v1.p.rapidapi.com/v3"
+        
+        # NUEVO: Endpoint directo
+        self.base_url = "https://v3.football.api-sports.io"
+        
         self.league_id = 239  # ID de la Primera A Colombia
         self.season = 2026
 
