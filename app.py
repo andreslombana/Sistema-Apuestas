@@ -1,8 +1,7 @@
 # app.py
 import streamlit as st
 import plotly.graph_objects as go
-from backend.data_client import NBADataClient
-# Asegúrate de tener este archivo creado según la arquitectura propuesta
+from backend.nba_client import NBADataClient          # <--- CORREGIDO
 from backend.football_client import FootballDataClient 
 from engine.gemini_client import GeminiAnalyzer
 from utils.db_manager import init_db, log_prediction, get_history_df
