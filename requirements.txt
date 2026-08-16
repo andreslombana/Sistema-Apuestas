@@ -1,6 +1,6 @@
-streamlit==1.31.0
-pandas==2.2.0
-requests==2.31.0
-plotly==5.18.0
-nba_api==1.4.1
-python-dotenv==1.0.1
+streamlit
+pandas
+requests
+plotly
+nba_api
+python-dotenv
