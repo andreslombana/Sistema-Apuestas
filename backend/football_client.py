@@ -94,23 +94,7 @@ class FootballDataClient:
 
     def get_live_odds(self, team_a: str, team_b: str, market_type: str = "1X2") -> dict:
         """
-        Genera una estructura de cuotas simuladas coherentes para probar el LLM
-        antes de conectar un feed de pago de cuotas en vivo.
+        Fuerza a la interfaz a solicitar el ingreso manual de cuotas de la casa de apuestas local (BetPlay).
         """
-        if "1X2" in market_type:
-            return {
-                team_a: {"price": 2.10, "point": None},
-                "Empate (X)": {"price": 3.10, "point": None},
-                team_b: {"price": 3.80, "point": None}
-            }
-        elif "Over/Under" in market_type:
-            return {
-                "Over 2.5": {"price": 2.35, "point": 2.5},
-                "Under 2.5": {"price": 1.55, "point": 2.5}
-            }
-        elif "Ambos Marcan" in market_type:
-             return {
-                "Sí (BTTS)": {"price": 1.95, "point": None},
-                "No (BTTS)": {"price": 1.80, "point": None}
-            }
-        return {}
+        # Retornar un error simulado activa el 'Fallback' en app.py
+        return {"error": "Modo manual activado para sincronización estricta con BetPlay."}
